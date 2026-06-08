@@ -21,16 +21,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build web app (debug)
+      - name: Build web app
         run: |
-          echo "=== Node version ==="
+          set -x
+          pwd
+          ls -la
           node --version
-          echo "=== NPM version ==="
           npm --version
-          echo "=== Build output ==="
-          npm run build 2>&1
-          echo "=== Build exit code ==="
-          echo $?
+          ls node_modules/.bin/vite 2>&1 || echo "vite not found"
+          bash -c "npx vite build" 2>&1
 
       - name: Setup Java
         if: success()
