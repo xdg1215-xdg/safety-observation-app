@@ -16,20 +16,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm install
 
       - name: Build web app
-        run: |
-          set -x
-          pwd
-          ls -la
-          node --version
-          npm --version
-          ls node_modules/.bin/vite 2>&1 || echo "vite not found"
-          bash -c "npx vite build" 2>&1
+        run: npm run build
 
       - name: Setup Java
         if: success()
