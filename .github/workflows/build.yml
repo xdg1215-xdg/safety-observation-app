@@ -58,6 +58,10 @@ jobs:
         if: success()
         run: npx cap sync android
 
+      - name: Create local.properties
+        if: success()
+        run: echo "sdk.dir=$HOME/android-sdk" > android/local.properties
+
       - name: Build APK
         if: success()
         run: |
