@@ -19,18 +19,28 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install
 
-      - name: Build web app
-        run: npm run build
+      - name: Build web app (debug)
+        run: |
+          echo "=== Node version ==="
+          node --version
+          echo "=== NPM version ==="
+          npm --version
+          echo "=== Build output ==="
+          npm run build 2>&1
+          echo "=== Build exit code ==="
+          echo $?
 
       - name: Setup Java
+        if: success()
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
       - name: Download Android SDK
+        if: success()
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools
           cd $HOME/android-sdk/cmdline-tools
@@ -40,6 +50,7 @@ jobs:
           rm cmdline-tools.zip
 
       - name: Install Android SDK components
+        if: success()
         run: |
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
@@ -48,12 +59,15 @@ jobs:
           ANDROID_SDK_ROOT: $HOME/android-sdk
 
       - name: Add Capacitor Android
+        if: success()
         run: npx cap add android
 
       - name: Sync Capacitor
+        if: success()
         run: npx cap sync android
 
       - name: Build APK
+        if: success()
         run: |
           cd android
           chmod +x gradlew
@@ -63,8 +77,8 @@ jobs:
           ANDROID_SDK_ROOT: $HOME/android-sdk
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
         if: success()
+        uses: actions/upload-artifact@v4
         with:
           name: stop-report-app
           path: android/app/build/outputs/apk/debug/app-debug.apk
