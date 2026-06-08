@@ -17,10 +17,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Build web app
         run: npm run build
@@ -31,7 +30,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Download Android SDK command line tools
+      - name: Download Android SDK
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools
           cd $HOME/android-sdk/cmdline-tools
@@ -40,7 +39,7 @@ jobs:
           mv cmdline-tools latest
           rm cmdline-tools.zip
 
-      - name: Accept licenses and install SDK components
+      - name: Install Android SDK components
         run: |
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
@@ -48,13 +47,13 @@ jobs:
           ANDROID_HOME: $HOME/android-sdk
           ANDROID_SDK_ROOT: $HOME/android-sdk
 
-      - name: Add Capacitor Android platform
+      - name: Add Capacitor Android
         run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Build debug APK
+      - name: Build APK
         run: |
           cd android
           chmod +x gradlew
@@ -62,11 +61,10 @@ jobs:
         env:
           ANDROID_HOME: $HOME/android-sdk
           ANDROID_SDK_ROOT: $HOME/android-sdk
-          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.11-12/x64
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: stop-report-app-debug
+          name: stop-report-app
           path: android/app/build/outputs/apk/debug/app-debug.apk
